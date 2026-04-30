@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexaBank — Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0C10;
+  --bg2:#0F1218;
+  --bg3:#141820;
+  --bg4:#1C2130;
+  --surface:#1A1F2E;
+  --surface2:#222840;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.1);
+  --accent:#00D4AA;
+  --accent2:#00FFD1;
+  --accent-dim:rgba(0,212,170,0.12);
+  --accent-glow:rgba(0,212,170,0.3);
+  --blue:#4C8EFF;
+  --blue-dim:rgba(76,142,255,0.12);
+  --amber:#FFB547;
+  --amber-dim:rgba(255,181,71,0.12);
+  --red:#FF5B5B;
+  --red-dim:rgba(255,91,91,0.12);
+  --purple:#A78BFA;
+  --purple-dim:rgba(167,139,250,0.12);
+  --text:#E8EAF0;
+  --text2:#8892A4;
+  --text3:#505A6E;
+  --font-head:'Syne',sans-serif;
+  --font-body:'Instrument Sans',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --radius:12px;
+  --radius-lg:16px;
+  --radius-xl:20px;
+}
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;overflow:hidden}
+
+/* ── LAYOUT ─────────────────────────────── */
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{
+  width:220px;flex-shrink:0;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+}
+.sidebar::before{
+  content:'';position:absolute;
+  top:-60px;left:-60px;
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(0,212,170,0.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+.brand{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
+.brand-mark{
+  display:inline-flex;align-items:center;gap:10px;
+}
+.brand-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#00A882);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.brand-icon svg{width:16px;height:16px;fill:var(--bg)}
+.brand-name{font-family:var(--font-head);font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.02em}
+.brand-tag{font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
+
+.nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-group-label{
+  font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text3);padding:0 8px;margin:16px 0 6px;
+  font-family:var(--font-head);font-weight:600;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:9px;
+  cursor:pointer;transition:all 0.18s;
+  color:var(--text2);font-size:13px;
+  font-weight:400;margin-bottom:1px;
+  position:relative;
+}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:0.7;transition:opacity 0.18s}
+.nav-item:hover{background:var(--accent-dim);color:var(--text)}
+.nav-item:hover svg{opacity:1}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:500}
+.nav-item.active svg{opacity:1;stroke:var(--accent)}
+.nav-item.active::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:60%;border-radius:2px;background:var(--accent);
+}
+.nav-badge{
+  margin-left:auto;background:var(--accent-dim);border:1px solid var(--accent-glow);
+  color:var(--accent);font-size:10px;font-weight:600;
+  padding:1px 7px;border-radius:20px;font-family:var(--font-mono);
+}
+
+.sidebar-footer{
+  padding:12px;border-top:1px solid var(--border);
+}
+.user-card{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;border-radius:10px;
+  background:var(--bg3);border:1px solid var(--border);
+  cursor:pointer;transition:border-color 0.18s;
+}
+.user-card:hover{border-color:var(--border2)}
+.avatar{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#4C8EFF,#A78BFA);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:11px;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+.user-info .u-name{font-size:12px;font-weight:500;color:var(--text)}
+.user-info .u-role{font-size:10px;color:var(--text3)}
+.user-card .chevron{margin-left:auto;opacity:0.3}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+
+.topbar{
+  padding:0 28px;height:60px;flex-shrink:0;
+  display:flex;align-items:center;gap:16px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg2);
+}
+.topbar-title{font-family:var(--font-head);font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.02em}
+.topbar-sep{width:1px;height:20px;background:var(--border2)}
+.topbar-sub{font-size:13px;color:var(--text3)}
+.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:8px;
+  font-size:13px;font-family:var(--font-body);font-weight:500;
+  cursor:pointer;transition:all 0.18s;border:1px solid var(--border2);
+  background:var(--surface);color:var(--text2);
+}
+.btn svg{width:13px;height:13px;flex-shrink:0}
+.btn:hover{border-color:var(--border2);background:var(--surface2);color:var(--text)}
+.btn-accent{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.btn-accent:hover{background:var(--accent2);border-color:var(--accent2);color:var(--bg)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text2)}
+.btn-ghost:hover{background:var(--surface);border-color:var(--border)}
+.btn-danger{background:var(--red-dim);border-color:rgba(255,91,91,0.2);color:var(--red)}
+.btn-danger:hover{background:rgba(255,91,91,0.2)}
+
+.content{flex:1;overflow-y:auto;padding:24px 28px;scroll-behavior:smooth}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-track{background:transparent}
+.content::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+
+/* VIEWS */
+.view{display:none;animation:fadeUp 0.25s ease}
+.view.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;
+}
+.card-head{
+  padding:16px 20px;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);
+}
+.card-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:#fff}
+.card-count{
+  font-family:var(--font-mono);font-size:11px;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text3);padding:2px 8px;border-radius:6px;
+}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:18px 20px;
+  position:relative;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+}
+.stat-card.c1::after{background:var(--accent)}
+.stat-card.c2::after{background:var(--blue)}
+.stat-card.c3::after{background:var(--amber)}
+.stat-card.c4::after{background:var(--purple)}
+.s-icon{
+  width:36px;height:36px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.s-icon svg{width:16px;height:16px}
+.s-label{font-size:11px;color:var(--text3);letter-spacing:0.04em;text-transform:uppercase;font-weight:500;margin-bottom:5px}
+.s-val{font-family:var(--font-head);font-size:24px;font-weight:700;color:#fff;letter-spacing:-0.02em;margin-bottom:4px}
+.s-sub{font-size:11.5px;font-weight:500}
+.s-sub.up{color:var(--accent)}
+.s-sub.down{color:var(--red)}
+.s-sub.neutral{color:var(--text3)}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{
+  padding:10px 16px;text-align:left;
+  font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;
+  color:var(--text3);background:var(--bg3);
+  border-bottom:1px solid var(--border);
+  font-family:var(--font-head);
+  white-space:nowrap;
+}
+.data-table td{
+  padding:11px 16px;font-size:13px;
+  border-bottom:1px solid var(--border);
+  color:var(--text2);vertical-align:middle;
+}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,0.02)}
+.data-table .mono{font-family:var(--font-mono);font-size:11.5px}
+
+/* BADGES */
+.badge{
+  display:inline-flex;align-items:center;padding:2px 8px;
+  border-radius:5px;font-size:11px;font-weight:600;
+  letter-spacing:0.02em;font-family:var(--font-head);
+}
+.badge-green{background:rgba(0,212,170,0.12);color:var(--accent);border:1px solid rgba(0,212,170,0.2)}
+.badge-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,91,91,0.2)}
+.badge-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(76,142,255,0.2)}
+.badge-amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,181,71,0.2)}
+.badge-purple{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(167,139,250,0.2)}
+.badge-gray{background:rgba(255,255,255,0.05);color:var(--text3);border:1px solid var(--border)}
+
+/* CREDIT CARD */
+.cc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+.cc-card{
+  border-radius:var(--radius-xl);padding:22px;height:170px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  cursor:pointer;transition:transform 0.2s;
+  position:relative;overflow:hidden;
+}
+.cc-card:hover{transform:translateY(-3px)}
+.cc-card::before{
+  content:'';position:absolute;
+  top:-40px;right:-40px;width:160px;height:160px;
+  border-radius:50%;background:rgba(255,255,255,0.04);
+}
+.cc-card::after{
+  content:'';position:absolute;
+  bottom:-30px;left:30px;width:120px;height:120px;
+  border-radius:50%;background:rgba(255,255,255,0.03);
+}
+.cc-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
+.cc-chip{
+  width:28px;height:20px;border-radius:4px;
+  background:rgba(255,255,255,0.25);
+}
+.cc-brand{font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:0.05em}
+.cc-num{
+  font-family:var(--font-mono);font-size:14px;color:rgba(255,255,255,0.85);
+  letter-spacing:0.15em;position:relative;z-index:1;
+}
+.cc-bottom{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1}
+.cc-holder{font-family:var(--font-head);font-size:12px;font-weight:600;color:rgba(255,255,255,0.8);letter-spacing:0.06em}
+.cc-meta{text-align:right}
+.cc-meta-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase}
+.cc-meta-val{font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.75)}
+.cc-util{
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:rgba(255,255,255,0.12);
+}
+.cc-util-fill{height:100%;border-radius:0 0 var(--radius-xl) var(--radius-xl);transition:width 0.5s}
+
+/* LOAN CARD */
+.loan-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:20px;margin-bottom:12px;
+  transition:border-color 0.2s;
+}
+.loan-card:hover{border-color:var(--border2)}
+.loan-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.loan-title{font-family:var(--font-head);font-size:14px;font-weight:600;color:#fff}
+.loan-meta{font-size:11.5px;color:var(--text3);margin-top:3px;font-family:var(--font-mono)}
+.loan-progress{height:5px;background:var(--bg3);border-radius:3px;margin-bottom:6px;overflow:hidden}
+.loan-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),#00A882);transition:width 0.6s}
+.loan-pct-label{font-size:11px;color:var(--text3);margin-bottom:14px}
+.loan-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.loan-stat{background:var(--bg3);border-radius:8px;padding:10px 12px}
+.loan-stat-lbl{font-size:10px;color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;font-family:var(--font-head)}
+.loan-stat-val{font-family:var(--font-head);font-size:14px;font-weight:700;color:#fff}
+
+/* ACCOUNT CARD */
+.accounts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.account-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:18px 20px;
+  cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;
+}
+.account-card:hover{border-color:var(--accent-glow);transform:translateY(-2px)}
+.account-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),transparent);opacity:0;
+  transition:opacity 0.2s;
+}
+.account-card:hover::before{opacity:1}
+.ac-type{font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;font-family:var(--font-head)}
+.ac-id{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:12px}
+.ac-balance{font-family:var(--font-head);font-size:22px;font-weight:700;color:#fff;margin-bottom:10px;letter-spacing:-0.02em}
+.ac-footer{display:flex;justify-content:space-between;align-items:center}
+.ac-customer{font-size:12.5px;color:var(--text2);font-weight:500}
+.ac-dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+
+/* SEARCH */
+.search-wrap{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:7px 12px;margin-left:auto;
+  transition:border-color 0.18s;
+}
+.search-wrap:focus-within{border-color:var(--border2)}
+.search-wrap svg{width:13px;height:13px;opacity:0.4;flex-shrink:0}
+.search-wrap input{
+  background:none;border:none;outline:none;
+  font-size:13px;color:var(--text);font-family:var(--font-body);width:180px;
+}
+.search-wrap input::placeholder{color:var(--text3)}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.filter-chip{
+  padding:5px 14px;border-radius:20px;
+  font-size:12px;font-weight:500;cursor:pointer;
+  border:1px solid var(--border);
+  background:transparent;color:var(--text2);
+  font-family:var(--font-body);transition:all 0.15s;
+}
+.filter-chip:hover{border-color:var(--border2);color:var(--text)}
+.filter-chip.active{background:var(--accent-dim);border-color:rgba(0,212,170,0.3);color:var(--accent);font-weight:600}
+
+/* MODAL */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
+  z-index:1000;align-items:center;justify-content:center;
+}
+.overlay.open{display:flex;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:var(--radius-xl);width:500px;max-height:88vh;
+  overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.5);
+  animation:slideUp 0.25s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal::-webkit-scrollbar{width:4px}
+.modal::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.modal-head{
+  padding:22px 24px 18px;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--bg2);z-index:1;
+}
+.modal-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:#fff}
+.modal-sub{font-size:12px;color:var(--text3);margin-top:3px}
+.modal-close{
+  width:28px;height:28px;border-radius:7px;
+  background:var(--surface);border:1px solid var(--border);
+  cursor:pointer;color:var(--text3);font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;flex-shrink:0;
+}
+.modal-close:hover{background:var(--surface2);color:var(--text)}
+.modal-body{padding:22px 24px}
+.modal-footer{
+  padding:16px 24px;border-top:1px solid var(--border);
+  display:flex;gap:8px;justify-content:flex-end;
+  position:sticky;bottom:0;background:var(--bg2);
+}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-field{margin-bottom:14px}
+.form-field.full{grid-column:1/-1}
+.f-label{
+  font-size:11px;font-weight:600;letter-spacing:0.05em;
+  text-transform:uppercase;color:var(--text3);
+  margin-bottom:7px;display:block;font-family:var(--font-head);
+}
+.f-input,.f-select{
+  width:100%;padding:9px 12px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;font-size:13px;
+  font-family:var(--font-body);color:var(--text);
+  outline:none;transition:border-color 0.15s;
+}
+.f-input:focus,.f-select:focus{border-color:rgba(0,212,170,0.4);background:var(--surface)}
+.f-input::placeholder{color:var(--text3)}
+.f-select option{background:var(--bg2)}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.toast{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:10px;padding:12px 16px;
+  font-size:13px;color:var(--text);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  display:flex;align-items:center;gap:10px;
+  animation:toastIn 0.25s ease;
+  max-width:320px;
+}
+@keyframes toastIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* EMPTY */
+.empty{padding:48px;text-align:center;color:var(--text3)}
+.empty svg{width:40px;height:40px;opacity:0.2;margin:0 auto 12px;display:block}
+
+/* DIVIDER */
+.section-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+
+/* PROGRESS BAR inline */
+.progress-inline{display:flex;align-items:center;gap:8px;width:100%}
+.progress-track{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:2px;transition:width 0.4s}
+.progress-label{font-family:var(--font-mono);font-size:11px;white-space:nowrap}
+
+/* TABS inside modal */
+.modal-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:0 -24px;padding:0 24px}
+.modal-tab{
+  padding:10px 16px;font-size:12.5px;font-weight:500;
+  cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;
+  margin-bottom:-1px;transition:all 0.15s;
+}
+.modal-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.modal-tab:hover:not(.active){color:var(--text2)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* PAYMENT LIST */
+.payment-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.payment-item:last-child{border-bottom:none}
+.pay-icon{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.pay-info{flex:1}
+.pay-method{font-size:12.5px;font-weight:500;color:var(--text)}
+.pay-date{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
+.pay-amount{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--accent)}
+
+/* CUSTOMER PROFILE */
+.profile-hero{
+  background:linear-gradient(135deg,var(--surface) 0%,var(--bg3) 100%);
+  border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:24px;margin-bottom:14px;
+  display:flex;align-items:center;gap:18px;
+}
+.profile-avatar{
+  width:56px;height:56px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:18px;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+.profile-name{font-family:var(--font-head);font-size:18px;font-weight:700;color:#fff}
+.profile-id{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:3px}
+.profile-details{margin-top:8px;display:flex;gap:16px}
+.profile-detail{font-size:12.5px;color:var(--text2)}
+
+/* BRANCHES */
+.branch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.branch-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:20px;transition:border-color 0.2s;
+}
+.branch-card:hover{border-color:var(--border2)}
+.branch-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:#fff;margin-bottom:2px}
+.branch-addr{font-size:12px;color:var(--text3);margin-bottom:14px}
+.branch-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.branch-row:last-child{border-bottom:none}
+.branch-key{color:var(--text3)}
+.branch-val{color:var(--text);font-weight:500}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr)}.cc-grid{grid-template-columns:repeat(2,1fr)}.accounts-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">NexaBank</div>
+          <div class="brand-tag">Management Suite</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-group-label">Overview</div>
+      <div class="nav-item active" data-view="dashboard" onclick="switchView('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </div>
+
+      <div class="nav-group-label">Core Banking</div>
+      <div class="nav-item" data-view="customers" onclick="switchView('customers',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Customers
+        <span class="nav-badge" id="nb-cust">10</span>
+      </div>
+      <div class="nav-item" data-view="accounts" onclick="switchView('accounts',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h3M14 15h3"/></svg>
+        Accounts
+        <span class="nav-badge" id="nb-acc">12</span>
+      </div>
+      <div class="nav-item" data-view="transactions" onclick="switchView('transactions',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8h13M13 5l3 3-3 3M21 16H8M11 13l-3 3 3 3"/></svg>
+        Transactions
+      </div>
+
+      <div class="nav-group-label">Credit</div>
+      <div class="nav-item" data-view="loans" onclick="switchView('loans',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Loans
+        <span class="nav-badge" id="nb-loans">7</span>
+      </div>
+      <div class="nav-item" data-view="creditcards" onclick="switchView('creditcards',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M7 15h2"/></svg>
+        Credit Cards
+      </div>
+
+      <div class="nav-group-label">Administration</div>
+      <div class="nav-item" data-view="bankers" onclick="switchView('bankers',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M6 20v-1a6 6 0 0112 0v1"/><path d="M17 8l2 2 4-4"/></svg>
+        Bankers
+      </div>
+      <div class="nav-item" data-view="branches" onclick="switchView('branches',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M3 7l9-4 9 4M5 7v14M19 7v14M9 21v-4h6v4"/></svg>
+        Branches
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">RK</div>
+        <div class="user-info">
+          <div class="u-name">Rajesh Kumar</div>
+          <div class="u-role">Branch Manager</div>
+        </div>
+        <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M6 4l4 4-4 4"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-sep"></div>
+      <div class="topbar-sub" id="topbar-sub">Overview of NexaBank operations</div>
+      <div class="topbar-actions" id="topbar-actions">
+        <button class="btn" onclick="openModal('customer')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M12 14c-4 0-7 2-7 4.5M16 14l2 2 4-4"/></svg>
+          New Customer
+        </button>
+        <button class="btn btn-accent" onclick="openModal('transaction')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          New Transaction
+        </button>
+      </div>
+    </div>
+
+    <div class="content" id="main-content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-grid" id="dash-stats"></div>
+        <div class="section-row">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Recent Transactions</div>
+              <div class="card-count" id="dash-txn-count">—</div>
+            </div>
+            <table class="data-table"><thead><tr>
+              <th>ID</th><th>Customer</th><th>Type</th><th>Amount</th><th>Description</th><th>Date</th>
+            </tr></thead><tbody id="dash-txn-body"></tbody></table>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Loan Portfolio</div></div>
+            <table class="data-table"><thead><tr>
+              <th>Customer</th><th>Type</th><th>Remaining</th><th>Status</th>
+            </tr></thead><tbody id="dash-loan-body"></tbody></table>
+          </div>
+        </div>
+        <div class="section-row">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Top Accounts</div></div>
+            <table class="data-table"><thead><tr>
+              <th>Account ID</th><th>Customer</th><th>Type</th><th>Balance</th>
+            </tr></thead><tbody id="dash-acc-body"></tbody></table>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Branch Assets</div></div>
+            <table class="data-table"><thead><tr>
+              <th>Branch</th><th>Manager</th><th>Assets</th>
+            </tr></thead><tbody id="dash-branch-body"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CUSTOMERS ══ -->
+      <div class="view" id="view-customers">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Customer Registry</div>
+            <div class="card-count" id="cust-count-label">—</div>
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" placeholder="Search by name or mobile..." oninput="filterCustomers(this.value)">
+            </div>
+            <button class="btn btn-sm btn-accent" onclick="openModal('customer')" style="margin-left:8px">+ Add</button>
+          </div>
+          <table class="data-table"><thead><tr>
+            <th>Customer ID</th><th>Name</th><th>Date of Birth</th><th>Mobile</th>
+            <th>Branch</th><th>Accounts</th><th>Total Balance</th><th>Actions</th>
+          </tr></thead><tbody id="cust-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ══ ACCOUNTS ══ -->
+      <div class="view" id="view-accounts">
+        <div class="filter-bar" id="acc-filters">
+          <button class="filter-chip active" onclick="filterAccounts('All',this)">All</button>
+          <button class="filter-chip" onclick="filterAccounts('Savings',this)">Savings</button>
+          <button class="filter-chip" onclick="filterAccounts('Current',this)">Current</button>
+          <button class="filter-chip" onclick="filterAccounts('Fixed Deposit',this)">Fixed Deposit</button>
+          <button class="filter-chip" onclick="filterAccounts('Recurring Deposit',this)">Recurring</button>
+        </div>
+        <div class="accounts-grid" id="acc-grid"></div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Account Details</div><div class="card-count" id="acc-count-label">—</div></div>
+          <table class="data-table"><thead><tr>
+            <th>Account ID</th><th>Customer</th><th>Type</th><th>Balance</th><th>Branch</th><th>Opened</th><th>Status</th>
+          </tr></thead><tbody id="acc-table-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ══ TRANSACTIONS ══ -->
+      <div class="view" id="view-transactions">
+        <div class="filter-bar" id="txn-filters">
+          <button class="filter-chip active" onclick="filterTxn('All',this)">All</button>
+          <button class="filter-chip" onclick="filterTxn('Credit',this)">Credits Only</button>
+          <button class="filter-chip" onclick="filterTxn('Debit',this)">Debits Only</button>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Transaction Ledger</div>
+            <div class="card-count" id="txn-count-label">—</div>
+            <button class="btn btn-sm btn-accent" onclick="openModal('transaction')" style="margin-left:auto">+ New Txn</button>
+          </div>
+          <table class="data-table"><thead><tr>
+            <th>Txn ID</th><th>Account</th><th>Customer</th><th>Type</th>
+            <th>Amount</th><th>Description</th><th>Date & Time</th>
+          </tr></thead><tbody id="txn-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ══ LOANS ══ -->
+      <div class="view" id="view-loans">
+        <div class="stats-grid" id="loan-stats"></div>
+        <div class="filter-bar">
+          <button class="filter-chip active" onclick="filterLoans('All',this)">All Types</button>
+          <button class="filter-chip" onclick="filterLoans('Home',this)">Home</button>
+          <button class="filter-chip" onclick="filterLoans('Personal',this)">Personal</button>
+          <button class="filter-chip" onclick="filterLoans('Vehicle',this)">Vehicle</button>
+          <button class="filter-chip" onclick="filterLoans('Education',this)">Education</button>
+          <button class="filter-chip" onclick="filterLoans('Business',this)">Business</button>
+          <button class="btn btn-sm btn-accent" onclick="openModal('loan')" style="margin-left:auto">+ New Loan</button>
+        </div>
+        <div id="loans-list"></div>
+      </div>
+
+      <!-- ══ CREDIT CARDS ══ -->
+      <div class="view" id="view-creditcards">
+        <div class="cc-grid" id="cc-visual-grid"></div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Credit Card Portfolio</div><div class="card-count" id="cc-count-label">—</div></div>
+          <table class="data-table"><thead><tr>
+            <th>Card ID</th><th>Holder</th><th>Card Type</th><th>Card Number</th>
+            <th>Limit</th><th>Used</th><th>Available</th><th>Utilization</th><th>Expiry</th><th>Status</th>
+          </tr></thead><tbody id="cc-table-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ══ BANKERS ══ -->
+      <div class="view" id="view-bankers">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Banker Directory</div>
+            <div class="card-count" id="banker-count-label">—</div>
+            <button class="btn btn-sm btn-accent" onclick="openModal('banker')" style="margin-left:auto">+ Add Banker</button>
+          </div>
+          <table class="data-table"><thead><tr>
+            <th>Banker ID</th><th>Name</th><th>Branch</th><th>Role</th><th>Loans Approved</th><th>Total Disbursed</th>
+          </tr></thead><tbody id="banker-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ══ BRANCHES ══ -->
+      <div class="view" id="view-branches">
+        <div class="stats-grid" id="branch-stats"></div>
+        <div class="branch-grid" id="branch-grid"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- New Customer -->
+<div class="overlay" id="overlay-customer">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">Add New Customer</div><div class="modal-sub">Register customer and open initial account</div></div>
+      <button class="modal-close" onclick="closeModal('customer')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full"><label class="f-label">Full Name</label><input class="f-input" id="nc-name" placeholder="e.g. Arun Sharma"></div>
+        <div class="form-field"><label class="f-label">Date of Birth</label><input class="f-input" type="date" id="nc-dob"></div>
+        <div class="form-field"><label class="f-label">Mobile Number</label><input class="f-input" id="nc-mobile" placeholder="10 digits"></div>
+        <div class="form-field"><label class="f-label">Home Branch</label>
+          <select class="f-select" id="nc-branch"></select>
+        </div>
+        <div class="form-field"><label class="f-label">Account Type</label>
+          <select class="f-select" id="nc-acctype">
+            <option>Savings</option><option>Current</option>
+            <option>Fixed Deposit</option><option>Recurring Deposit</option>
+          </select>
+        </div>
+        <div class="form-field full"><label class="f-label">Opening Balance (₹)</label><input class="f-input" type="number" id="nc-balance" placeholder="Min ₹500"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('customer')">Cancel</button>
+      <button class="btn btn-accent" onclick="saveCustomer()">Create Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Transaction -->
+<div class="overlay" id="overlay-transaction">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">Record Transaction</div><div class="modal-sub">Post a credit or debit entry</div></div>
+      <button class="modal-close" onclick="closeModal('transaction')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full"><label class="f-label">Account</label><select class="f-select" id="nt-account"></select></div>
+        <div class="form-field"><label class="f-label">Transaction Type</label>
+          <select class="f-select" id="nt-type"><option>Credit</option><option>Debit</option></select>
+        </div>
+        <div class="form-field"><label class="f-label">Amount (₹)</label><input class="f-input" type="number" id="nt-amount" placeholder="0.00"></div>
+        <div class="form-field full"><label class="f-label">Description</label><input class="f-input" id="nt-desc" placeholder="e.g. Salary Credit, ATM Withdrawal..."></div>
+        <div class="form-field full"><label class="f-label">Date & Time</label><input class="f-input" type="datetime-local" id="nt-date"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('transaction')">Cancel</button>
+      <button class="btn btn-accent" onclick="saveTransaction()">Post Transaction</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Loan -->
+<div class="overlay" id="overlay-loan">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">Issue New Loan</div><div class="modal-sub">Create a loan application</div></div>
+      <button class="modal-close" onclick="closeModal('loan')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full"><label class="f-label">Customer</label><select class="f-select" id="nl-customer"></select></div>
+        <div class="form-field"><label class="f-label">Loan Type</label>
+          <select class="f-select" id="nl-type">
+            <option>Home</option><option>Personal</option><option>Vehicle</option>
+            <option>Education</option><option>Business</option>
+          </select>
+        </div>
+        <div class="form-field"><label class="f-label">Loan Amount (₹)</label><input class="f-input" type="number" id="nl-amount" placeholder="0"></div>
+        <div class="form-field"><label class="f-label">Issued Amount (₹)</label><input class="f-input" type="number" id="nl-issued" placeholder="0"></div>
+        <div class="form-field"><label class="f-label">Interest Rate (%)</label><input class="f-input" type="number" id="nl-rate" placeholder="e.g. 8.5"></div>
+        <div class="form-field"><label class="f-label">Issue Date</label><input class="f-input" type="date" id="nl-issuedate"></div>
+        <div class="form-field"><label class="f-label">Due Date</label><input class="f-input" type="date" id="nl-duedate"></div>
+        <div class="form-field"><label class="f-label">Approved By (Banker)</label><select class="f-select" id="nl-banker"></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('loan')">Cancel</button>
+      <button class="btn btn-accent" onclick="saveLoan()">Issue Loan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loan Payment -->
+<div class="overlay" id="overlay-loanpay">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title" id="loanpay-title">Loan Details</div><div class="modal-sub" id="loanpay-sub"></div></div>
+      <button class="modal-close" onclick="closeModal('loanpay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <div class="modal-tab active" onclick="switchTab(this,'tab-loaninfo')">Loan Info</div>
+        <div class="modal-tab" onclick="switchTab(this,'tab-payments')">Payment History</div>
+        <div class="modal-tab" onclick="switchTab(this,'tab-makepay')">Make Payment</div>
+      </div>
+      <div style="padding-top:16px">
+        <div class="tab-pane active" id="tab-loaninfo"></div>
+        <div class="tab-pane" id="tab-payments"></div>
+        <div class="tab-pane" id="tab-makepay">
+          <div class="form-grid" style="margin-top:8px">
+            <div class="form-field"><label class="f-label">Payment Amount (₹)</label><input class="f-input" type="number" id="pay-amount" placeholder="0"></div>
+            <div class="form-field"><label class="f-label">Payment Method</label>
+              <select class="f-select" id="pay-method">
+                <option>Auto Debit</option><option>Online Transfer</option>
+                <option>Cash</option><option>Cheque</option><option>UPI</option>
+              </select>
+            </div>
+            <div class="form-field full"><label class="f-label">Payment Date</label><input class="f-input" type="date" id="pay-date"></div>
+          </div>
+          <button class="btn btn-accent" style="width:100%;margin-top:4px;justify-content:center" onclick="recordPayment()">Record Payment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Banker -->
+<div class="overlay" id="overlay-banker">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">Add Banker</div><div class="modal-sub">Register a new bank employee</div></div>
+      <button class="modal-close" onclick="closeModal('banker')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full"><label class="f-label">Full Name</label><input class="f-input" id="nb-name" placeholder="Banker's name"></div>
+        <div class="form-field"><label class="f-label">Branch</label><select class="f-select" id="nb-branch"></select></div>
+        <div class="form-field"><label class="f-label">Role</label>
+          <select class="f-select" id="nb-role">
+            <option>Loan Officer</option><option>Branch Manager</option>
+            <option>Relationship Manager</option><option>Teller</option><option>Senior Banker</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('banker')">Cancel</button>
+      <button class="btn btn-accent" onclick="saveBanker()">Add Banker</button>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Profile Modal -->
+<div class="overlay" id="overlay-profile">
+  <div class="modal" style="width:540px">
+    <div class="modal-head">
+      <div><div class="modal-title">Customer Profile</div><div class="modal-sub">Full customer record</div></div>
+      <button class="modal-close" onclick="closeModal('profile')">✕</button>
+    </div>
+    <div class="modal-body" id="profile-body"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+/* ────────── DATABASE ────────── */
+const DB = {
+  branches:[
+    {id:1,name:"MG Road Branch",address:"12, MG Road, Bengaluru 560001",manager:"Rajesh Kumar",assets:85000000},
+    {id:2,name:"Koramangala Branch",address:"45, 80ft Road, Koramangala, Bengaluru",manager:"Sunita Sharma",assets:72000000},
+    {id:3,name:"Whitefield Branch",address:"7, ITPL Main Road, Whitefield, Bengaluru",manager:"Anil Mehta",assets:95000000},
+    {id:4,name:"Indiranagar Branch",address:"100ft Road, Indiranagar, Bengaluru",manager:"Priya Nair",assets:60000000},
+    {id:5,name:"Electronic City Branch",address:"Phase 1, Electronic City, Bengaluru",manager:"Vikram Singh",assets:78000000}
+  ],
+  bankers:[
+    {id:1,name:"Arjun Patel",branch_id:1,role:"Loan Officer"},
+    {id:2,name:"Meena Rao",branch_id:1,role:"Relationship Manager"},
+    {id:3,name:"Suresh Pillai",branch_id:2,role:"Loan Officer"},
+    {id:4,name:"Kavitha Nair",branch_id:2,role:"Senior Banker"},
+    {id:5,name:"Deepak Verma",branch_id:3,role:"Branch Manager"},
+    {id:6,name:"Ananya Singh",branch_id:3,role:"Teller"},
+    {id:7,name:"Ravi Shankar",branch_id:4,role:"Loan Officer"},
+    {id:8,name:"Pooja Desai",branch_id:5,role:"Relationship Manager"},
+    {id:9,name:"Kiran Kumar",branch_id:5,role:"Loan Officer"},
+    {id:10,name:"Lakshmi Iyer",branch_id:4,role:"Senior Banker"}
+  ],
+  customers:[
+    {id:1,name:"Aarav Sharma",dob:"1990-05-12",mobile:"9876543210",branch_id:1},
+    {id:2,name:"Priya Menon",dob:"1985-11-23",mobile:"9876543211",branch_id:1},
+    {id:3,name:"Rohit Gupta",dob:"1992-03-08",mobile:"9876543212",branch_id:2},
+    {id:4,name:"Sneha Patil",dob:"1988-07-19",mobile:"9876543213",branch_id:2},
+    {id:5,name:"Vivek Reddy",dob:"1995-01-30",mobile:"9876543214",branch_id:3},
+    {id:6,name:"Anjali Krishnan",dob:"1993-09-14",mobile:"9876543215",branch_id:3},
+    {id:7,name:"Manoj Tiwari",dob:"1980-12-01",mobile:"9876543216",branch_id:4},
+    {id:8,name:"Divya Bhat",dob:"1997-06-25",mobile:"9876543217",branch_id:4},
+    {id:9,name:"Suresh Kamath",dob:"1975-04-17",mobile:"9876543218",branch_id:5},
+    {id:10,name:"Nisha Joshi",dob:"1991-08-09",mobile:"9876543219",branch_id:5}
+  ],
+  accounts:[
+    {id:1,balance:150000,type:"Savings",customer_id:1,branch_id:1,opened:"2018-03-15",status:"Active"},
+    {id:2,balance:500000,type:"Current",customer_id:1,branch_id:1,opened:"2020-06-01",status:"Active"},
+    {id:3,balance:85000,type:"Savings",customer_id:2,branch_id:1,opened:"2019-01-20",status:"Active"},
+    {id:4,balance:200000,type:"Fixed Deposit",customer_id:3,branch_id:2,opened:"2021-04-10",status:"Active"},
+    {id:5,balance:30000,type:"Savings",customer_id:4,branch_id:2,opened:"2017-08-05",status:"Active"},
+    {id:6,balance:620000,type:"Current",customer_id:5,branch_id:3,opened:"2022-02-14",status:"Active"},
+    {id:7,balance:45000,type:"Recurring Deposit",customer_id:6,branch_id:3,opened:"2023-01-01",status:"Active"},
+    {id:8,balance:300000,type:"Savings",customer_id:7,branch_id:4,opened:"2016-11-30",status:"Active"},
+    {id:9,balance:175000,type:"Savings",customer_id:8,branch_id:4,opened:"2020-09-18",status:"Active"},
+    {id:10,balance:90000,type:"Current",customer_id:9,branch_id:5,opened:"2019-05-22",status:"Active"},
+    {id:11,balance:410000,type:"Fixed Deposit",customer_id:10,branch_id:5,opened:"2021-12-15",status:"Active"},
+    {id:12,balance:55000,type:"Savings",customer_id:2,branch_id:1,opened:"2022-07-07",status:"Active"}
+  ],
+  transactions:[
+    {id:1,account_id:1,amount:20000,type:"Credit",date:"2024-01-05 10:15",desc:"Salary Credit"},
+    {id:2,account_id:1,amount:5000,type:"Debit",date:"2024-01-10 14:30",desc:"ATM Withdrawal"},
+    {id:3,account_id:1,amount:10000,type:"Debit",date:"2024-01-15 09:00",desc:"Online Shopping"},
+    {id:4,account_id:2,amount:100000,type:"Credit",date:"2024-01-08 11:00",desc:"Business Income"},
+    {id:5,account_id:2,amount:50000,type:"Debit",date:"2024-01-20 16:45",desc:"Supplier Payment"},
+    {id:6,account_id:3,amount:15000,type:"Credit",date:"2024-02-01 08:30",desc:"Interest Credit"},
+    {id:7,account_id:3,amount:3000,type:"Debit",date:"2024-02-05 12:00",desc:"Utility Bill"},
+    {id:8,account_id:5,amount:8000,type:"Credit",date:"2024-02-10 13:15",desc:"Freelance Payment"},
+    {id:9,account_id:5,amount:2000,type:"Debit",date:"2024-02-12 15:30",desc:"Grocery Shopping"},
+    {id:10,account_id:6,amount:200000,type:"Credit",date:"2024-03-01 09:45",desc:"Project Payment"},
+    {id:11,account_id:6,amount:75000,type:"Debit",date:"2024-03-05 17:00",desc:"Office Rent"},
+    {id:12,account_id:8,amount:25000,type:"Debit",date:"2024-03-10 10:00",desc:"EMI Payment"},
+    {id:13,account_id:9,amount:12000,type:"Credit",date:"2024-03-15 14:00",desc:"Salary Credit"},
+    {id:14,account_id:10,amount:30000,type:"Debit",date:"2024-03-20 11:30",desc:"Business Expense"},
+    {id:15,account_id:1,amount:5000,type:"Credit",date:"2024-04-01 09:00",desc:"Refund"},
+    {id:16,account_id:11,amount:18000,type:"Credit",date:"2024-04-05 10:30",desc:"FD Interest"},
+    {id:17,account_id:7,amount:4500,type:"Credit",date:"2024-04-08 09:15",desc:"RD Installment"},
+    {id:18,account_id:4,amount:7500,type:"Debit",date:"2024-04-10 14:00",desc:"Insurance Premium"}
+  ],
+  loans:[
+    {id:1,amount:500000,issued:500000,remaining:320000,type:"Home",rate:8.5,issue:"2021-06-01",due:"2036-06-01",customer_id:1,banker_id:1,borrower_id:1},
+    {id:2,amount:150000,issued:150000,remaining:85000,type:"Personal",rate:12.0,issue:"2022-01-15",due:"2025-01-15",customer_id:2,banker_id:2,borrower_id:2},
+    {id:3,amount:800000,issued:800000,remaining:750000,type:"Vehicle",rate:9.0,issue:"2023-03-10",due:"2028-03-10",customer_id:3,banker_id:3,borrower_id:3},
+    {id:4,amount:300000,issued:300000,remaining:210000,type:"Education",rate:7.5,issue:"2020-08-01",due:"2030-08-01",customer_id:4,banker_id:4,borrower_id:4},
+    {id:5,amount:1000000,issued:950000,remaining:900000,type:"Business",rate:11.0,issue:"2023-07-20",due:"2028-07-20",customer_id:5,banker_id:5,borrower_id:5},
+    {id:6,amount:200000,issued:200000,remaining:50000,type:"Personal",rate:13.0,issue:"2021-02-01",due:"2024-02-01",customer_id:7,banker_id:7,borrower_id:7},
+    {id:7,amount:600000,issued:600000,remaining:420000,type:"Home",rate:8.75,issue:"2022-05-15",due:"2037-05-15",customer_id:9,banker_id:9,borrower_id:9}
+  ],
+  loanPayments:[
+    {id:1,loan_id:1,amount:15000,date:"2024-01-01",method:"Auto Debit"},
+    {id:2,loan_id:1,amount:15000,date:"2024-02-01",method:"Auto Debit"},
+    {id:3,loan_id:1,amount:15000,date:"2024-03-01",method:"Auto Debit"},
+    {id:4,loan_id:2,amount:8000,date:"2024-01-10",method:"Online Transfer"},
+    {id:5,loan_id:2,amount:8000,date:"2024-02-10",method:"Online Transfer"},
+    {id:6,loan_id:3,amount:18000,date:"2024-01-15",method:"Auto Debit"},
+    {id:7,loan_id:3,amount:18000,date:"2024-02-15",method:"Auto Debit"},
+    {id:8,loan_id:4,amount:5000,date:"2024-01-20",method:"Cash"},
+    {id:9,loan_id:4,amount:5000,date:"2024-02-20",method:"Cash"},
+    {id:10,loan_id:5,amount:25000,date:"2024-01-05",method:"Online Transfer"},
+    {id:11,loan_id:6,amount:12000,date:"2024-01-01",method:"Cheque"},
+    {id:12,loan_id:6,amount:12000,date:"2024-02-01",method:"Cheque"},
+    {id:13,loan_id:7,amount:20000,date:"2024-01-10",method:"Auto Debit"},
+    {id:14,loan_id:7,amount:20000,date:"2024-02-10",method:"Auto Debit"}
+  ],
+  creditCards:[
+    {id:1,number:"4111111111111111",expiry:"2026-12-31",limit:200000,used:45000,type:"Visa",customer_id:1,branch_id:1,issued:"2022-01-10"},
+    {id:2,number:"5500005555555559",expiry:"2025-06-30",limit:150000,used:80000,type:"MasterCard",customer_id:2,branch_id:1,issued:"2021-06-15"},
+    {id:3,number:"4012888888881881",expiry:"2027-03-31",limit:300000,used:120000,type:"Visa",customer_id:3,branch_id:2,issued:"2023-03-01"},
+    {id:4,number:"6011111111111117",expiry:"2026-09-30",limit:100000,used:30000,type:"RuPay",customer_id:5,branch_id:3,issued:"2022-09-20"},
+    {id:5,number:"378282246310005",expiry:"2025-11-30",limit:500000,used:200000,type:"Amex",customer_id:7,branch_id:4,issued:"2020-11-05"},
+    {id:6,number:"4111222233334444",expiry:"2027-08-31",limit:250000,used:95000,type:"Visa",customer_id:9,branch_id:5,issued:"2023-08-01"}
+  ]
+};
+
+/* ── HELPERS ── */
+const fmt = n => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(n);
+const fmtNum = n => new Intl.NumberFormat('en-IN').format(n);
+const id4 = (prefix,n) => `${prefix}-${String(n).padStart(4,'0')}`;
+const getCust = id => DB.customers.find(c=>c.id===id)||{name:'Unknown',id:0};
+const getBranch = id => DB.branches.find(b=>b.id===id)||{name:'Unknown'};
+const getBanker = id => DB.bankers.find(b=>b.id===id)||{name:'Unknown'};
+const getAcct = id => DB.accounts.find(a=>a.id===id)||{balance:0,type:'',customer_id:0};
+const loanPct = l => Math.round(((l.amount-l.remaining)/l.amount)*100);
+const isOverdue = l => new Date(l.due)<new Date();
+const custAccounts = cid => DB.accounts.filter(a=>a.customer_id===cid);
+const custTotalBalance = cid => custAccounts(cid).reduce((s,a)=>s+a.balance,0);
+const initials = name => name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+const CC_GRADIENTS = [
+  ['#1a3a5c','#0d6efd'],['#2d1b69','#7c3aed'],
+  ['#1a3a2a','#059669'],['#3a1a1a','#dc2626'],
+  ['#1a2a3a','#0891b2'],['#2a1a2a','#c026d3']
+];
+
+function toast(msg,type='accent'){
+  const w=document.getElementById('toast-wrap');
+  const t=document.createElement('div');
+  t.className='toast';
+  const colors={'accent':'var(--accent)','red':'var(--red)','blue':'var(--blue)','amber':'var(--amber)'};
+  t.innerHTML=`<span class="toast-dot" style="background:${colors[type]||colors.accent}"></span>${msg}`;
+  w.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(20px)';setTimeout(()=>t.remove(),300)},3000);
+}
+
+/* ── VIEW SWITCHING ── */
+const VIEW_META={
+  dashboard:{title:'Dashboard',sub:'NexaBank operations overview'},
+  customers:{title:'Customers',sub:'Customer registry & profiles'},
+  accounts:{title:'Accounts',sub:'All bank accounts'},
+  transactions:{title:'Transactions',sub:'Full transaction ledger'},
+  loans:{title:'Loans',sub:'Loan portfolio & repayments'},
+  creditcards:{title:'Credit Cards',sub:'Card management & utilization'},
+  bankers:{title:'Bankers',sub:'Employee directory'},
+  branches:{title:'Branches',sub:'Branch network'}
+};
+
+function switchView(name,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  el.classList.add('active');
+  const m=VIEW_META[name];
+  document.getElementById('topbar-title').textContent=m.title;
+  document.getElementById('topbar-sub').textContent=m.sub;
+  renderView(name);
+}
+
+function renderView(name){
+  if(name==='dashboard')renderDashboard();
+  else if(name==='customers')renderCustomers();
+  else if(name==='accounts')renderAccounts();
+  else if(name==='transactions')renderTransactions();
+  else if(name==='loans')renderLoans();
+  else if(name==='creditcards')renderCreditCards();
+  else if(name==='bankers')renderBankers();
+  else if(name==='branches')renderBranches();
+}
+
+/* ── DASHBOARD ── */
+function renderDashboard(){
+  const totalDep = DB.accounts.reduce((s,a)=>s+a.balance,0);
+  const totalLoans = DB.loans.reduce((s,l)=>s+l.remaining,0);
+  const overdueCount = DB.loans.filter(l=>isOverdue(l)).length;
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="stat-card c1">
+      <div class="s-icon" style="background:rgba(0,212,170,0.1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <div class="s-label">Total Deposits</div>
+      <div class="s-val">${fmt(totalDep)}</div>
+      <div class="s-sub up">↑ ${DB.accounts.length} active accounts</div>
+    </div>
+    <div class="stat-card c2">
+      <div class="s-icon" style="background:rgba(76,142,255,0.1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <div class="s-label">Customers</div>
+      <div class="s-val">${DB.customers.length}</div>
+      <div class="s-sub neutral">${DB.accounts.length} accounts opened</div>
+    </div>
+    <div class="stat-card c3">
+      <div class="s-icon" style="background:rgba(255,181,71,0.1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      </div>
+      <div class="s-label">Outstanding Loans</div>
+      <div class="s-val">${fmt(totalLoans)}</div>
+      <div class="s-sub ${overdueCount>0?'down':'up'}">${overdueCount>0?`⚠ ${overdueCount} overdue`:'All current'}</div>
+    </div>
+    <div class="stat-card c4">
+      <div class="s-icon" style="background:rgba(167,139,250,0.1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.8"><path d="M3 8h13M13 5l3 3-3 3M21 16H8M11 13l-3 3 3 3"/></svg>
+      </div>
+      <div class="s-label">Transactions</div>
+      <div class="s-val">${DB.transactions.length}</div>
+      <div class="s-sub neutral">${fmt(DB.transactions.reduce((s,t)=>s+t.amount,0))} volume</div>
+    </div>`;
+
+  const recentTxns=[...DB.transactions].slice(-8).reverse();
+  document.getElementById('dash-txn-count').textContent=recentTxns.length;
+  document.getElementById('dash-txn-body').innerHTML=recentTxns.map(t=>{
+    const a=getAcct(t.account_id);const c=getCust(a.customer_id);
+    return `<tr>
+      <td class="mono">${id4('TXN',t.id)}</td>
+      <td style="color:#fff;font-weight:500">${c.name}</td>
+      <td><span class="badge ${t.type==='Credit'?'badge-green':'badge-red'}">${t.type}</span></td>
+      <td style="font-weight:600;color:${t.type==='Credit'?'var(--accent)':'var(--red)'}">${t.type==='Credit'?'+':'-'}${fmt(t.amount)}</td>
+      <td>${t.desc}</td>
+      <td class="mono" style="font-size:11px">${t.date}</td>
+    </tr>`;}).join('');
+
+  document.getElementById('dash-loan-body').innerHTML=DB.loans.map(l=>{
+    const c=getCust(l.customer_id);const od=isOverdue(l);
+    return `<tr>
+      <td style="font-weight:500;color:#fff">${c.name}</td>
+      <td><span class="badge badge-blue">${l.type}</span></td>
+      <td style="font-weight:600;color:var(--amber)">${fmt(l.remaining)}</td>
+      <td><span class="badge ${od?'badge-red':'badge-green'}">${od?'Overdue':'Active'}</span></td>
+    </tr>`;}).join('');
+
+  const topAccs=[...DB.accounts].sort((a,b)=>b.balance-a.balance).slice(0,6);
+  document.getElementById('dash-acc-body').innerHTML=topAccs.map(a=>{
+    const c=getCust(a.customer_id);
+    return `<tr>
+      <td class="mono">${id4('ACC',a.id)}</td>
+      <td style="font-weight:500;color:#fff">${c.name}</td>
+      <td><span class="badge badge-purple">${a.type}</span></td>
+      <td style="font-weight:700;color:var(--accent)">${fmt(a.balance)}</td>
+    </tr>`;}).join('');
+
+  document.getElementById('dash-branch-body').innerHTML=DB.branches.map(b=>{
+    return `<tr>
+      <td style="font-weight:500;color:#fff">${b.name}</td>
+      <td>${b.manager}</td>
+      <td style="font-weight:600">${fmt(b.assets)}</td>
+    </tr>`;}).join('');
+}
+
+/* ── CUSTOMERS ── */
+let custFilter='';
+function renderCustomers(filter){
+  if(filter!==undefined)custFilter=filter;
+  const list=custFilter?DB.customers.filter(c=>c.name.toLowerCase().includes(custFilter.toLowerCase())||c.mobile.includes(custFilter)):DB.customers;
+  document.getElementById('cust-count-label').textContent=list.length+' records';
+  document.getElementById('nb-cust').textContent=DB.customers.length;
+  document.getElementById('cust-body').innerHTML=list.map(c=>{
+    const br=getBranch(c.branch_id);
+    const accs=custAccounts(c.id);
+    const total=custTotalBalance(c.id);
+    const avatarColors=['#1a3a5c','#2d1b69','#1a3a2a','#3a1a1a','#1a2a3a','#2a2a1a'];
+    const aColor=avatarColors[c.id%avatarColors.length];
+    return `<tr>
+      <td class="mono">${id4('CUST',c.id)}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:30px;height:30px;border-radius:7px;background:${aColor};border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${initials(c.name)}</div>
+          <span style="font-weight:500;color:#fff">${c.name}</span>
+        </div>
+      </td>
+      <td>${c.dob}</td>
+      <td class="mono">${c.mobile}</td>
+      <td>${br.name}</td>
+      <td><span class="badge badge-blue">${accs.length} acct${accs.length!==1?'s':''}</span></td>
+      <td style="font-weight:700;color:var(--accent)">${fmt(total)}</td>
+      <td><button class="btn btn-sm btn-ghost" onclick="showProfile(${c.id})">View ›</button></td>
+    </tr>`;}).join('');
+}
+
+function filterCustomers(v){renderCustomers(v)}
+
+function showProfile(cid){
+  const c=getCust(cid);const br=getBranch(c.branch_id);
+  const accs=custAccounts(cid);
+  const loans=DB.loans.filter(l=>l.customer_id===cid);
+  const cards=DB.creditCards.filter(cc=>cc.customer_id===cid);
+  const txns=DB.transactions.filter(t=>accs.find(a=>a.id===t.account_id));
+  const avatarColors=['#1a3a5c','#2d1b69','#1a3a2a','#3a1a1a','#1a2a3a','#2a2a1a'];
+  const aColor=avatarColors[cid%avatarColors.length];
+
+  document.getElementById('profile-body').innerHTML=`
+    <div class="profile-hero">
+      <div class="profile-avatar" style="background:${aColor};border:1px solid rgba(255,255,255,0.08)">${initials(c.name)}</div>
+      <div>
+        <div class="profile-name">${c.name}</div>
+        <div class="profile-id">${id4('CUST',c.id)} &nbsp;·&nbsp; DOB: ${c.dob}</div>
+        <div class="profile-details">
+          <span class="profile-detail">📱 ${c.mobile}</span>
+          <span class="profile-detail">🏦 ${br.name}</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Total Balance</div>
+        <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--accent)">${fmt(custTotalBalance(cid))}</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Active Loans</div>
+        <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--amber)">${loans.length}</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Credit Cards</div>
+        <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--blue)">${cards.length}</div>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Accounts</div>
+    ${accs.map(a=>`<div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:8px;margin-bottom:6px">
+      <div>
+        <span class="mono" style="font-size:11px;color:var(--text3)">${id4('ACC',a.id)}</span>
+        <span class="badge badge-purple" style="margin-left:8px">${a.type}</span>
+      </div>
+      <div style="font-family:var(--font-head);font-weight:700;color:var(--accent)">${fmt(a.balance)}</div>
+    </div>`).join('')}
+    ${txns.length?`<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin:14px 0 8px">Recent Transactions</div>
+    ${txns.slice(-4).reverse().map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <span class="badge ${t.type==='Credit'?'badge-green':'badge-red'}" style="margin-right:8px">${t.type}</span>
+        <span style="font-size:12.5px">${t.desc}</span>
+      </div>
+      <span style="font-family:var(--font-head);font-weight:700;color:${t.type==='Credit'?'var(--accent)':'var(--red)'}">${t.type==='Credit'?'+':'-'}${fmt(t.amount)}</span>
+    </div>`).join('')}`:''}`;
+  openModal('profile');
+}
+
+/* ── ACCOUNTS ── */
+let accFilter='All';
+function renderAccounts(filter){
+  if(filter!==undefined)accFilter=filter;
+  const list=accFilter==='All'?DB.accounts:DB.accounts.filter(a=>a.type===accFilter);
+  document.getElementById('nb-acc').textContent=DB.accounts.length;
+  document.getElementById('acc-count-label').textContent=list.length+' accounts';
+  const typeColors={Savings:'badge-green',Current:'badge-blue','Fixed Deposit':'badge-amber','Recurring Deposit':'badge-purple'};
+  document.getElementById('acc-grid').innerHTML=list.map(a=>{
+    const c=getCust(a.customer_id);
+    return `<div class="account-card" onclick="toast('${id4('ACC',a.id)} \u2014 ${fmt(a.balance)}','accent')">
+      <div class="ac-type">${a.type}</div>
+      <div class="ac-id">${id4('ACC',a.id)}</div>
+      <div class="ac-balance">${fmt(a.balance)}</div>
+      <div class="ac-footer">
+        <div class="ac-customer">${c.name}</div>
+        <div class="ac-dot"></div>
+      </div>
+    </div>`;}).join('');
+  document.getElementById('acc-table-body').innerHTML=list.map(a=>{
+    const c=getCust(a.customer_id);const br=getBranch(a.branch_id);
+    return `<tr>
+      <td class="mono">${id4('ACC',a.id)}</td>
+      <td style="font-weight:500;color:#fff">${c.name}</td>
+      <td><span class="badge ${typeColors[a.type]||'badge-gray'}">${a.type}</span></td>
+      <td style="font-weight:700;color:var(--accent)">${fmt(a.balance)}</td>
+      <td>${br.name}</td>
+      <td class="mono" style="font-size:11px">${a.opened}</td>
+      <td><span class="badge badge-green">${a.status}</span></td>
+    </tr>`;}).join('');
+}
+
+function filterAccounts(t,el){
+  document.querySelectorAll('#acc-filters .filter-chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderAccounts(t);
+}
+
+/* ── TRANSACTIONS ── */
+let txnFilter='All';
+function renderTransactions(filter){
+  if(filter!==undefined)txnFilter=filter;
+  const list=txnFilter==='All'?DB.transactions:DB.transactions.filter(t=>t.type===txnFilter);
+  document.getElementById('txn-count-label').textContent=list.length+' entries';
+  document.getElementById('txn-body').innerHTML=[...list].reverse().map(t=>{
+    const a=getAcct(t.account_id);const c=getCust(a.customer_id);
+    return `<tr>
+      <td class="mono">${id4('TXN',t.id)}</td>
+      <td class="mono">${id4('ACC',t.account_id)}</td>
+      <td style="font-weight:500;color:#fff">${c.name}</td>
+      <td><span class="badge ${t.type==='Credit'?'badge-green':'badge-red'}">${t.type}</span></td>
+      <td style="font-weight:700;color:${t.type==='Credit'?'var(--accent)':'var(--red)'}">${t.type==='Credit'?'+':'-'}${fmt(t.amount)}</td>
+      <td>${t.desc}</td>
+      <td class="mono" style="font-size:11px">${t.date}</td>
+    </tr>`;}).join('');
+}
+
+function filterTxn(f,el){
+  document.querySelectorAll('#txn-filters .filter-chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderTransactions(f);
+}
+
+/* ── LOANS ── */
+let loanFilter='All';
+function renderLoans(filter){
+  if(filter!==undefined)loanFilter=filter;
+  const list=loanFilter==='All'?DB.loans:DB.loans.filter(l=>l.type===loanFilter);
+  const totalIssued=DB.loans.reduce((s,l)=>s+l.issued,0);
+  const totalRem=DB.loans.reduce((s,l)=>s+l.remaining,0);
+  const odCount=DB.loans.filter(l=>isOverdue(l)).length;
+  document.getElementById('loan-stats').innerHTML=`
+    <div class="stat-card c1">
+      <div class="s-label">Total Loans</div>
+      <div class="s-val">${DB.loans.length}</div>
+      <div class="s-sub neutral">${loanFilter==='All'?'All types':loanFilter+' type'}</div>
+    </div>
+    <div class="stat-card c2">
+      <div class="s-label">Total Issued</div>
+      <div class="s-val">${fmt(totalIssued)}</div>
+      <div class="s-sub neutral">Disbursed to borrowers</div>
+    </div>
+    <div class="stat-card c3">
+      <div class="s-label">Outstanding</div>
+      <div class="s-val">${fmt(totalRem)}</div>
+      <div class="s-sub ${odCount>0?'down':'up'}">${odCount>0?`${odCount} overdue`:'Portfolio healthy'}</div>
+    </div>
+    <div class="stat-card c4">
+      <div class="s-label">Payments Made</div>
+      <div class="s-val">${DB.loanPayments.length}</div>
+      <div class="s-sub neutral">${fmt(DB.loanPayments.reduce((s,p)=>s+p.amount,0))} collected</div>
+    </div>`;
+  document.getElementById('nb-loans').textContent=DB.loans.length;
+  const loanTypeColors={Home:'badge-blue',Personal:'badge-amber',Vehicle:'badge-green',Education:'badge-purple',Business:'badge-red'};
+  document.getElementById('loans-list').innerHTML=list.map(l=>{
+    const c=getCust(l.customer_id);const bk=getBanker(l.banker_id);
+    const pct=loanPct(l);const od=isOverdue(l);
+    const pays=DB.loanPayments.filter(p=>p.loan_id===l.id);
+    return `<div class="loan-card">
+      <div class="loan-header">
+        <div>
+          <div class="loan-title">${c.name} <span style="color:var(--text3);font-weight:400">—</span> ${l.type} Loan</div>
+          <div class="loan-meta">${id4('LOAN',l.id)} &nbsp;·&nbsp; ${l.rate}% p.a. &nbsp;·&nbsp; Officer: ${bk.name} &nbsp;·&nbsp; ${pays.length} payments</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="badge ${loanTypeColors[l.type]||'badge-gray'}">${l.type}</span>
+          <span class="badge ${od?'badge-red':'badge-green'}">${od?'OVERDUE':'Active'}</span>
+          <button class="btn btn-sm" onclick="openLoanPay(${l.id})" style="margin-left:4px">Details</button>
+        </div>
+      </div>
+      <div class="loan-progress"><div class="loan-fill" style="width:${pct}%"></div></div>
+      <div class="loan-pct-label">${pct}% repaid · Issued: ${l.issue} · Due: ${l.due}</div>
+      <div class="loan-stats-row">
+        <div class="loan-stat"><div class="loan-stat-lbl">Loan Amount</div><div class="loan-stat-val">${fmt(l.amount)}</div></div>
+        <div class="loan-stat"><div class="loan-stat-lbl">Issued</div><div class="loan-stat-val">${fmt(l.issued)}</div></div>
+        <div class="loan-stat"><div class="loan-stat-lbl">Remaining</div><div class="loan-stat-val" style="color:${od?'var(--red)':'var(--amber)'}">${fmt(l.remaining)}</div></div>
+        <div class="loan-stat"><div class="loan-stat-lbl">Paid</div><div class="loan-stat-val" style="color:var(--accent)">${fmt(l.amount-l.remaining)}</div></div>
+      </div>
+    </div>`;}).join('');
+}
+
+function filterLoans(f,el){
+  document.querySelectorAll('.filter-bar .filter-chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderLoans(f);
+}
+
+let activeLoanId=null;
+function openLoanPay(lid){
+  activeLoanId=lid;
+  const l=DB.loans.find(x=>x.id===lid);
+  const c=getCust(l.customer_id);
+  document.getElementById('loanpay-title').textContent=`${l.type} Loan — ${c.name}`;
+  document.getElementById('loanpay-sub').textContent=id4('LOAN',l.id)+' · '+l.rate+'% p.a.';
+  const pct=loanPct(l);
+  document.getElementById('tab-loaninfo').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      ${[['Customer',c.name],['Loan Type',l.type],['Amount',fmt(l.amount)],['Issued',fmt(l.issued)],['Remaining',fmt(l.remaining)],['Paid',fmt(l.amount-l.remaining)],['Rate',l.rate+'% p.a.'],['Issue Date',l.issue],['Due Date',l.due],['Banker',getBanker(l.banker_id).name]].map(([k,v])=>`
+        <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;font-family:var(--font-head)">${k}</div>
+          <div style="font-size:13.5px;font-weight:500;color:#fff">${v}</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:4px">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${pct}% Repaid</div>
+      <div class="loan-progress"><div class="loan-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  const pays=DB.loanPayments.filter(p=>p.loan_id===lid);
+  const methodColors={'Auto Debit':'badge-blue','Online Transfer':'badge-green','Cash':'badge-amber','Cheque':'badge-purple','UPI':'badge-green'};
+  document.getElementById('tab-payments').innerHTML=pays.length?
+    `<div style="margin-top:4px">${pays.reverse().map(p=>`<div class="payment-item">
+      <div class="pay-icon" style="background:var(--accent-dim)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <div class="pay-info">
+        <div class="pay-method"><span class="badge ${methodColors[p.method]||'badge-gray'}" style="margin-right:6px">${p.method}</span>${id4('PMT',p.id)}</div>
+        <div class="pay-date">${p.date}</div>
+      </div>
+      <div class="pay-amount">+${fmt(p.amount)}</div>
+    </div>`).join('')}</div>`:
+    `<div class="empty"><p>No payments recorded yet</p></div>`;
+  document.getElementById('pay-date').value=new Date().toISOString().slice(0,10);
+  document.querySelector('#tab-makepay .f-input[id="pay-amount"]') && (document.getElementById('pay-amount').value='');
+  openModal('loanpay');
+}
+
+let payingLoanId=null;
+function openLoanPayModal(lid){payingLoanId=lid}
+
+function recordPayment(){
+  const amt=parseFloat(document.getElementById('pay-amount').value)||0;
+  const method=document.getElementById('pay-method').value;
+  const date=document.getElementById('pay-date').value;
+  if(!amt||amt<=0){toast('Enter a valid amount','red');return}
+  const loan=DB.loans.find(l=>l.id===activeLoanId);
+  if(amt>loan.remaining){toast('Amount exceeds remaining balance','red');return}
+  loan.remaining-=amt;
+  const newId=Math.max(...DB.loanPayments.map(p=>p.id))+1;
+  DB.loanPayments.push({id:newId,loan_id:activeLoanId,amount:amt,date,method});
+  toast(`Payment of ${fmt(amt)} recorded!`,'accent');
+  openLoanPay(activeLoanId);
+  renderLoans();
+}
+
+/* ── CREDIT CARDS ── */
+function renderCreditCards(){
+  document.getElementById('cc-count-label').textContent=DB.creditCards.length+' cards';
+  document.getElementById('cc-visual-grid').innerHTML=DB.creditCards.map((cc,i)=>{
+    const c=getCust(cc.customer_id);const g=CC_GRADIENTS[i%CC_GRADIENTS.length];
+    const masked='•••• •••• •••• '+cc.number.replace(/\s/g,'').slice(-4);
+    const pct=Math.round((cc.used/cc.limit)*100);
+    return `<div class="cc-card" style="background:linear-gradient(135deg,${g[0]},${g[1]})">
+      <div class="cc-top">
+        <div class="cc-chip"></div>
+        <div class="cc-brand">${cc.type}</div>
+      </div>
+      <div class="cc-num">${masked}</div>
+      <div class="cc-bottom">
+        <div>
+          <div class="cc-holder">${c.name.toUpperCase()}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px">${fmt(cc.limit)} limit · ${pct}% used</div>
+        </div>
+        <div class="cc-meta">
+          <div class="cc-meta-label">Expires</div>
+          <div class="cc-meta-val">${cc.expiry.slice(0,7)}</div>
+        </div>
+      </div>
+      <div class="cc-util"><div class="cc-util-fill" style="width:${pct}%;background:rgba(255,255,255,${pct>75?0.9:0.6})"></div></div>
+    </div>`;}).join('');
+
+  const today=new Date();
+  document.getElementById('cc-table-body').innerHTML=DB.creditCards.map(cc=>{
+    const c=getCust(cc.customer_id);
+    const avail=cc.limit-cc.used;
+    const pct=Math.round((cc.used/cc.limit)*100);
+    const exp=new Date(cc.expiry);
+    const status=exp<today?'Expired':((exp-today)<90*86400000?'Expiring Soon':'Active');
+    const sBadge=status==='Active'?'badge-green':status==='Expired'?'badge-red':'badge-amber';
+    return `<tr>
+      <td class="mono">${id4('CC',cc.id)}</td>
+      <td style="font-weight:500;color:#fff">${c.name}</td>
+      <td><span class="badge badge-blue">${cc.type}</span></td>
+      <td class="mono">•••• ${cc.number.replace(/\s/g,'').slice(-4)}</td>
+      <td style="font-weight:600">${fmt(cc.limit)}</td>
+      <td style="color:var(--red);font-weight:600">${fmt(cc.used)}</td>
+      <td style="color:var(--accent);font-weight:600">${fmt(avail)}</td>
+      <td>
+        <div class="progress-inline">
+          <div class="progress-track"><div class="progress-bar-fill" style="width:${pct}%;background:${pct>75?'var(--red)':'var(--accent)'}"></div></div>
+          <span class="progress-label" style="color:${pct>75?'var(--red)':'var(--text2)'}">${pct}%</span>
+        </div>
+      </td>
+      <td class="mono">${cc.expiry}</td>
+      <td><span class="badge ${sBadge}">${status}</span></td>
+    </tr>`;}).join('');
+}
+
+/* ── BANKERS ── */
+function renderBankers(){
+  document.getElementById('banker-count-label').textContent=DB.bankers.length+' employees';
+  document.getElementById('banker-body').innerHTML=DB.bankers.map(bk=>{
+    const br=getBranch(bk.branch_id);
+    const loans=DB.loans.filter(l=>l.banker_id===bk.id);
+    const totalDisbursed=loans.reduce((s,l)=>s+l.issued,0);
+    const roleColors={'Loan Officer':'badge-blue','Branch Manager':'badge-amber','Relationship Manager':'badge-green','Teller':'badge-gray','Senior Banker':'badge-purple'};
+    return `<tr>
+      <td class="mono">${id4('BNK',bk.id)}</td>
+      <td style="font-weight:500;color:#fff">${bk.name}</td>
+      <td>${br.name}</td>
+      <td><span class="badge ${roleColors[bk.role]||'badge-gray'}">${bk.role}</span></td>
+      <td style="font-weight:600;color:var(--blue)">${loans.length}</td>
+      <td style="font-weight:600;color:var(--accent)">${fmt(totalDisbursed)}</td>
+    </tr>`;}).join('');
+}
+
+/* ── BRANCHES ── */
+function renderBranches(){
+  const totalAssets=DB.branches.reduce((s,b)=>s+b.assets,0);
+  document.getElementById('branch-stats').innerHTML=`
+    <div class="stat-card c1"><div class="s-label">Total Branches</div><div class="s-val">${DB.branches.length}</div><div class="s-sub neutral">Across Bengaluru</div></div>
+    <div class="stat-card c2"><div class="s-label">Total Assets</div><div class="s-val">${fmt(totalAssets)}</div><div class="s-sub up">Combined portfolio</div></div>
+    <div class="stat-card c3"><div class="s-label">Total Bankers</div><div class="s-val">${DB.bankers.length}</div><div class="s-sub neutral">Active employees</div></div>
+    <div class="stat-card c4"><div class="s-label">Total Customers</div><div class="s-val">${DB.customers.length}</div><div class="s-sub up">Registered</div></div>`;
+  document.getElementById('branch-grid').innerHTML=DB.branches.map(b=>{
+    const bAccounts=DB.accounts.filter(a=>a.branch_id===b.id);
+    const bCustomers=DB.customers.filter(c=>c.branch_id===b.id);
+    const bBankers=DB.bankers.filter(bk=>bk.branch_id===b.id);
+    const totalDep=bAccounts.reduce((s,a)=>s+a.balance,0);
+    return `<div class="branch-card">
+      <div class="branch-name">${b.name}</div>
+      <div class="branch-addr">📍 ${b.address} &nbsp;·&nbsp; Manager: <strong>${b.manager}</strong></div>
+      <div class="branch-row"><span class="branch-key">Total Assets</span><span class="branch-val" style="color:var(--accent)">${fmt(b.assets)}</span></div>
+      <div class="branch-row"><span class="branch-key">Total Deposits</span><span class="branch-val">${fmt(totalDep)}</span></div>
+      <div class="branch-row"><span class="branch-key">Customers</span><span class="branch-val">${bCustomers.length}</span></div>
+      <div class="branch-row"><span class="branch-key">Accounts</span><span class="branch-val">${bAccounts.length}</span></div>
+      <div class="branch-row"><span class="branch-key">Bankers</span><span class="branch-val">${bBankers.length}</span></div>
+    </div>`;}).join('');
+}
+
+/* ── MODALS ── */
+function openModal(name){
+  if(name==='customer'){
+    const br=document.getElementById('nc-branch');
+    br.innerHTML=DB.branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+  }
+  if(name==='transaction'){
+    document.getElementById('nt-account').innerHTML=DB.accounts.map(a=>`<option value="${a.id}">${id4('ACC',a.id)} — ${getCust(a.customer_id).name} (${a.type})</option>`).join('');
+    const now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+    document.getElementById('nt-date').value=now.toISOString().slice(0,16);
+  }
+  if(name==='loan'){
+    document.getElementById('nl-customer').innerHTML=DB.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+    document.getElementById('nl-banker').innerHTML=DB.bankers.map(b=>`<option value="${b.id}">${b.name} (${getBranch(b.branch_id).name})</option>`).join('');
+    const today=new Date().toISOString().slice(0,10);
+    document.getElementById('nl-issuedate').value=today;
+  }
+  if(name==='banker'){
+    document.getElementById('nb-branch').innerHTML=DB.branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+  }
+  document.getElementById('overlay-'+name).classList.add('open');
+}
+
+function closeModal(name){document.getElementById('overlay-'+name).classList.remove('open')}
+
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')}));
+
+/* ── SAVE HANDLERS ── */
+function saveCustomer(){
+  const name=document.getElementById('nc-name').value.trim();
+  const dob=document.getElementById('nc-dob').value;
+  const mobile=document.getElementById('nc-mobile').value.trim();
+  const branchId=parseInt(document.getElementById('nc-branch').value);
+  const accType=document.getElementById('nc-acctype').value;
+  const balance=parseFloat(document.getElementById('nc-balance').value)||0;
+  if(!name||!dob||!mobile){toast('Please fill all required fields','red');return}
+  if(!/^\d{10}$/.test(mobile)){toast('Enter a valid 10-digit mobile number','red');return}
+  const newCid=Math.max(...DB.customers.map(c=>c.id))+1;
+  DB.customers.push({id:newCid,name,dob,mobile,branch_id:branchId});
+  const newAid=Math.max(...DB.accounts.map(a=>a.id))+1;
+  DB.accounts.push({id:newAid,balance,type:accType,customer_id:newCid,branch_id:branchId,opened:new Date().toISOString().slice(0,10),status:'Active'});
+  closeModal('customer');
+  ['nc-name','nc-dob','nc-mobile','nc-balance'].forEach(id=>document.getElementById(id).value='');
+  toast(`Customer ${name} registered with ${accType} account`);
+  renderCustomers();renderDashboard();
+}
+
+function saveTransaction(){
+  const accId=parseInt(document.getElementById('nt-account').value);
+  const type=document.getElementById('nt-type').value;
+  const amount=parseFloat(document.getElementById('nt-amount').value)||0;
+  const desc=document.getElementById('nt-desc').value.trim()||'Manual Entry';
+  const date=document.getElementById('nt-date').value||new Date().toLocaleString();
+  if(!amount||amount<=0){toast('Enter a valid amount','red');return}
+  const acc=DB.accounts.find(a=>a.id===accId);
+  if(type==='Debit'&&acc.balance<amount){toast('Insufficient balance!','red');return}
+  if(type==='Credit')acc.balance+=amount; else acc.balance-=amount;
+  const newId=Math.max(...DB.transactions.map(t=>t.id))+1;
+  DB.transactions.push({id:newId,account_id:accId,amount,type,date:date.replace('T',' '),desc});
+  closeModal('transaction');
+  document.getElementById('nt-amount').value='';document.getElementById('nt-desc').value='';
+  toast(`${type} of ${fmt(amount)} posted successfully`,'accent');
+  renderDashboard();
+  if(document.getElementById('view-transactions').classList.contains('active'))renderTransactions();
+  if(document.getElementById('view-accounts').classList.contains('active'))renderAccounts();
+}
+
+function saveLoan(){
+  const custId=parseInt(document.getElementById('nl-customer').value);
+  const type=document.getElementById('nl-type').value;
+  const amount=parseFloat(document.getElementById('nl-amount').value)||0;
+  const issued=parseFloat(document.getElementById('nl-issued').value)||0;
+  const rate=parseFloat(document.getElementById('nl-rate').value)||0;
+  const issueDate=document.getElementById('nl-issuedate').value;
+  const dueDate=document.getElementById('nl-duedate').value;
+  const bankerId=parseInt(document.getElementById('nl-banker').value);
+  if(!amount||!issued||!rate||!issueDate||!dueDate){toast('Please fill all fields','red');return}
+  const newId=Math.max(...DB.loans.map(l=>l.id))+1;
+  DB.loans.push({id:newId,amount,issued,remaining:issued,type,rate,issue:issueDate,due:dueDate,customer_id:custId,banker_id:bankerId,borrower_id:bankerId});
+  closeModal('loan');
+  toast(`${type} loan of ${fmt(amount)} issued to ${getCust(custId).name}`,'accent');
+  renderLoans();renderDashboard();
+}
+
+function saveBanker(){
+  const name=document.getElementById('nb-name').value.trim();
+  const branchId=parseInt(document.getElementById('nb-branch').value);
+  const role=document.getElementById('nb-role').value;
+  if(!name){toast('Enter banker name','red');return}
+  const newId=Math.max(...DB.bankers.map(b=>b.id))+1;
+  DB.bankers.push({id:newId,name,branch_id:branchId,role});
+  closeModal('banker');
+  document.getElementById('nb-name').value='';
+  toast(`${name} added as ${role}`,'accent');
+  renderBankers();
+}
+
+/* ── TABS ── */
+function switchTab(el,tabId){
+  el.closest('.modal').querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
+  el.closest('.modal').querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+/* ── INIT ── */
+renderDashboard();
+</script>
+</body>
+</html>
